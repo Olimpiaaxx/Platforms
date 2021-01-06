@@ -38,7 +38,7 @@ class Game:
         self.player = Player(self)
         self.all_sprites.add(self.player)
         for plat in PLATFORM_LIST:
-            p = Platform(*plat)
+            p = Platform(self, *plat)
             self.all_sprites.add(p)
             self.platforms.add(p)
         self.run()
@@ -63,9 +63,9 @@ class Game:
                 self.player.vel.y = 0
         #if player reaches top 1/4 of the screen
         if self.player.rect.top <= HEIGHT / 4:
-            self.player.pos.y += abs(self.player.vel.y)
+            self.player.pos.y += max(abs(self.player.vel.y), 2)
             for plat in self.platforms:
-                plat.rect.y += abs(self.player.vel.y)
+                plat.rect.y += max(abs(self.player.vel.y), 2)
                 if plat.rect.top >= HEIGHT:
                     plat.kill()
                     self.score += 10
@@ -82,9 +82,8 @@ class Game:
         # spawn new platforms to keep same average number of platforms
         while len(self.platforms) < 6:
             width = random.randrange(50, 100)
-            p = Platform(random.randrange(0, WIDTH-width),
-                        random.randrange(-75, -30),
-                        width, 20)
+            p = Platform(self, random.randrange(0, WIDTH-width),
+                        random.randrange(-75, -30))
             self.platforms.add(p)
             self.all_sprites.add(p)
 
@@ -104,6 +103,7 @@ class Game:
         # game loop - draw
         self.screen.fill(BGCOLOR)
         self.all_sprites.draw(self.screen)
+        self.screen.blit(self.player.image, self.player.rect)
         self.draw_text(str(self.score), 22, WHITE, WIDTH / 2, 15)
         # *after* drawing everything, flip the display
         pg.display.flip()
@@ -111,10 +111,10 @@ class Game:
     def show_start_screen(self):
         # game splash/start show_go_screen
         self.screen.fill(BGCOLOR)
-        self.draw_text(TITLE, 40, WHITE, WIDTH / 2, HEIGHT / 4)
-        self.draw_text('Arrows to move, Space to jump', 22, WHITE, WIDTH / 2, HEIGHT / 2)
-        self.draw_text('Press a key to play', 22, WHITE, WIDTH / 2, HEIGHT * 3 / 4)
-        self.draw_text('High Score: ' + str(self.highscore), 22, WHITE, WIDTH / 2, 15)
+        self.draw_text(TITLE, 40, PURPLE, WIDTH / 2, HEIGHT / 4)
+        self.draw_text('Arrows to move, Space to jump', 22, PURPLE, WIDTH / 2, HEIGHT / 2)
+        self.draw_text('Press a key to play', 22, PURPLE, WIDTH / 2, HEIGHT * 3 / 4)
+        self.draw_text('High Score: ' + str(self.highscore), 22, PURPLE, WIDTH / 2, 15)
         pg.display.flip()
         self.wait_for_key()
 
@@ -123,16 +123,16 @@ class Game:
         if not self.running:
             return
         self.screen.fill(BGCOLOR)
-        self.draw_text('GAME OVER', 40, WHITE, WIDTH / 2, HEIGHT / 4)
-        self.draw_text('Score: ' + str(self.score), 22, WHITE, WIDTH / 2, HEIGHT / 2)
-        self.draw_text('Press a key to play again', 22, WHITE, WIDTH / 2, HEIGHT * 3 / 4)
+        self.draw_text('GAME OVER', 40, PURPLE, WIDTH / 2, HEIGHT / 4)
+        self.draw_text('Score: ' + str(self.score), 22, PURPLE, WIDTH / 2, HEIGHT / 2)
+        self.draw_text('Press a key to play again', 22, PURPLE, WIDTH / 2, HEIGHT * 3 / 4)
         if self.score > self.highscore:
             self.highscore = self.score
-            self.draw_text('NEW HIGH SCORE!', 22, WHITE, WIDTH / 2, HEIGHT / 2 + 40)
+            self.draw_text('NEW HIGH SCORE!', 22, PURPLE, WIDTH / 2, HEIGHT / 2 + 40)
             with open(path.join(self.dir, HS_FILE), 'w') as f:
                 f.write(str(self.score))
         else:
-            self.draw_text('High Score: ' + str(self.highscore), 22, WHITE, WIDTH / 2, HEIGHT / 2 + 40)
+            self.draw_text('High Score: ' + str(self.highscore), 22, PURPLE, WIDTH / 2, HEIGHT / 2 + 40)
         pg.display.flip()
         self.wait_for_key()
 
