@@ -50,12 +50,18 @@ class Player(pg.sprite.Sprite):
         self.jump_frame = self.game.spritesheet.get_image(416, 1660, 150, 181)
         self.jump_frame.set_colorkey(BLACK)
 
+    def jump_cut(self):
+        if self.jumping:
+            if self.vel.y < -3:
+                self.vel.y = -3
+                
     def jump(self):
         # jump only if standing on platform
         self.rect.x += 2
         hits = pg.sprite.spritecollide(self, self.game.platforms, False)
         self.rect.x -= 2
-        if hits:
+        if hits and not self.jumping:
+            self.jumping = True
             self.vel.y = -PLAYER_JUMP
 
 
@@ -92,7 +98,7 @@ class Player(pg.sprite.Sprite):
             self.walking = False
         #show walk animation
         if self.walking:
-            if now - self.last_update > 230:
+            if now - self.last_update > 200:
                 self.last_update = now
                 self.current_frame = (self.current_frame + 1) % len(self.walk_frames_l)
                 bottom = self.rect.bottom
