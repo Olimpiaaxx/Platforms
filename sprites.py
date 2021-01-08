@@ -54,16 +54,16 @@ class Player(pg.sprite.Sprite):
         if self.jumping:
             if self.vel.y < -3:
                 self.vel.y = -3
-                
+
     def jump(self):
         # jump only if standing on platform
         self.rect.x += 2
         hits = pg.sprite.spritecollide(self, self.game.platforms, False)
         self.rect.x -= 2
         if hits and not self.jumping:
+            self.game.jump_sound.play()
             self.jumping = True
             self.vel.y = -PLAYER_JUMP
-
 
     def update(self):
         self.animate()
